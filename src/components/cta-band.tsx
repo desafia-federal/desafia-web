@@ -20,10 +20,10 @@ export function CtaBand({
         <div>
           <p>{text}</p>
           <div className="button-row">
-            <Link href="/participar" className="button button--dark">
+            <Link href="/participar" className="button button--light">
               Quiero participar <ArrowRight width={19} height={19} />
             </Link>
-            <Link href="/contacto" className="text-link text-link--dark">
+            <Link href="/contacto" className="text-link">
               Hablemos
             </Link>
           </div>

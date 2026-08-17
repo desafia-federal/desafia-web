@@ -7,9 +7,12 @@ export default function manifest(): MetadataRoute.Manifest {
     description: "Afrontar y transformar la exclusión.",
     start_url: "/",
     display: "standalone",
-    background_color: "#fffdf9",
-    theme_color: "#17151b",
+    background_color: "#feefd5",
+    theme_color: "#032545",
     lang: "es-AR",
-    icons: [{ src: "/icon.svg", sizes: "any", type: "image/svg+xml" }],
+    icons: [
+      { src: "/brand/desafia-icon-192.png", sizes: "192x192", type: "image/png" },
+      { src: "/brand/desafia-icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
   };
 }

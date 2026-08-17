@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 export function Logo({ footer = false }: { footer?: boolean }) {
@@ -7,8 +8,15 @@ export function Logo({ footer = false }: { footer?: boolean }) {
       className={`logo ${footer ? "logo--footer" : ""}`}
       aria-label="DESAFÍA Federal, ir al inicio"
     >
-      <span className="logo__word">DESAFÍA</span>
-      <span className="logo__federal">Federal</span>
+      <Image
+        className="logo__image"
+        src="/brand/desafia-logo-horizontal.webp"
+        width={720}
+        height={246}
+        sizes="(max-width: 640px) 172px, 222px"
+        alt="DESAFÍA Federal"
+        priority={!footer}
+      />
     </Link>
   );
 }
