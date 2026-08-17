@@ -98,16 +98,15 @@ export async function getPayment(id: string): Promise<MpPayment> {
  * Validates the Mercado Pago `x-signature` header using the webhook secret.
  * Returns true when the HMAC matches the documented manifest template.
  */
-export function inspectWebhookSignature(params: {
+export function verifyWebhookSignature(params: {
   signatureHeader: string | null;
   requestId: string | null;
   dataId: string | null;
-}): { valid: boolean; manifest: string; computed: string; received: string } {
-  const empty = { valid: false, manifest: "", computed: "", received: "" };
+}): boolean {
   const secret = process.env.MP_WEBHOOK_SECRET;
-  if (!secret) return empty;
+  if (!secret) return false;
   const { signatureHeader, requestId, dataId } = params;
-  if (!signatureHeader || !dataId) return empty;
+  if (!signatureHeader || !dataId) return false;
 
   const parts = Object.fromEntries(
     signatureHeader.split(",").map((segment) => {
@@ -117,26 +116,15 @@ export function inspectWebhookSignature(params: {
   );
   const ts = parts.ts;
   const v1 = parts.v1;
-  if (!ts || !v1) return empty;
+  if (!ts || !v1) return false;
 
   const manifest = `id:${dataId.toLowerCase()};request-id:${requestId ?? ""};ts:${ts};`;
   const computed = crypto.createHmac("sha256", secret).update(manifest).digest("hex");
 
-  let valid = false;
   const expectedBuffer = Buffer.from(computed);
   const receivedBuffer = Buffer.from(v1);
-  if (expectedBuffer.length === receivedBuffer.length) {
-    valid = crypto.timingSafeEqual(expectedBuffer, receivedBuffer);
-  }
-  return { valid, manifest, computed, received: v1 };
-}
-
-export function verifyWebhookSignature(params: {
-  signatureHeader: string | null;
-  requestId: string | null;
-  dataId: string | null;
-}): boolean {
-  return inspectWebhookSignature(params).valid;
+  if (expectedBuffer.length !== receivedBuffer.length) return false;
+  return crypto.timingSafeEqual(expectedBuffer, receivedBuffer);
 }
 
 export function paymentMatchesDinner(payment: MpPayment): boolean {

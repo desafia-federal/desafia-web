@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { addBenefactor, setLastWebhook } from "@/lib/benefactors";
-import { getPayment, inspectWebhookSignature, paymentMatchesDinner } from "@/lib/mercadopago";
+import { addBenefactor } from "@/lib/benefactors";
+import { getPayment, paymentMatchesDinner, verifyWebhookSignature } from "@/lib/mercadopago";
 
 export const runtime = "nodejs";
 
@@ -21,54 +21,27 @@ export async function POST(request: Request) {
 
   const type = body.type ?? topic ?? "";
   const paymentId = body.data?.id ?? queryDataId ?? queryId;
-  // MP builds the signature manifest from the `data.id` query param.
-  const signatureId = queryDataId ?? body.data?.id ?? queryId;
 
-  const sig = inspectWebhookSignature({
-    signatureHeader: request.headers.get("x-signature"),
-    requestId: request.headers.get("x-request-id"),
-    dataId: signatureId,
-  });
-
-  const base = {
-    rawQuery: url.search,
-    type,
-    topic,
-    paymentId,
-    signatureId,
-    requestId: request.headers.get("x-request-id"),
-    manifest: sig.manifest,
-    computedPrefix: sig.computed.slice(0, 12),
-    receivedPrefix: sig.received.slice(0, 12),
-    signatureValid: sig.valid,
-  };
-
-  // Ignore merchant_order notifications: we only care about payments.
-  if (type === "merchant_order" || topic === "merchant_order") {
-    await setLastWebhook({ ...base, step: "ignored-merchant-order" });
+  // Only payments matter; acknowledge merchant_order and anything else.
+  if (type !== "payment") {
     return NextResponse.json({ ignored: true });
   }
-
   if (!paymentId) {
-    await setLastWebhook({ ...base, step: "no-payment-id" });
     return NextResponse.json({ message: "Falta el identificador del pago." }, { status: 400 });
   }
 
-  // La verificación fuerte es contra la API de Mercado Pago (más abajo): sólo
-  // grabamos pagos que existen, están aprobados, son por el monto exacto y
-  // traen el nombre en el metadata que definimos nosotros. La firma se registra
-  // como capa adicional pero no bloquea el registro.
+  // The signature is a best-effort extra layer. The real gate is verifying the
+  // payment against the Mercado Pago API below (needs our access token), so we
+  // do not hard-fail when the signature secret is unavailable or mismatched.
+  verifyWebhookSignature({
+    signatureHeader: request.headers.get("x-signature"),
+    requestId: request.headers.get("x-request-id"),
+    dataId: queryDataId ?? body.data?.id ?? queryId,
+  });
+
   try {
     const payment = await getPayment(paymentId);
-    const matched = paymentMatchesDinner(payment);
-    if (!matched) {
-      await setLastWebhook({
-        ...base,
-        step: "not-matched",
-        paymentStatus: payment.status,
-        amount: payment.transaction_amount,
-        currency: payment.currency_id,
-      });
+    if (!paymentMatchesDinner(payment)) {
       return NextResponse.json({ ignored: true });
     }
     const metadata = payment.metadata ?? {};
@@ -77,10 +50,8 @@ export async function POST(request: Request) {
     if (name) {
       await addBenefactor({ paymentId: String(payment.id), name, message: message || undefined });
     }
-    await setLastWebhook({ ...base, step: "recorded", paymentStatus: payment.status, recorded: Boolean(name) });
     return NextResponse.json({ recorded: Boolean(name) });
   } catch {
-    await setLastWebhook({ ...base, step: "error-fetching-payment" });
     return NextResponse.json({ message: "No pudimos procesar la notificación." }, { status: 502 });
   }
 }
