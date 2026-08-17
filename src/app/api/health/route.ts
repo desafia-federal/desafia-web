@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
+import { getLastWebhook } from "@/lib/benefactors";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 // Diagnóstico temporal: informa SOLO si las variables están presentes.
 // Nunca expone los valores de los secretos. Quitar tras verificar el deploy.
-export function GET() {
+export async function GET() {
   return NextResponse.json({
     mpAccessToken: Boolean(process.env.MP_ACCESS_TOKEN),
     mpWebhookSecret: Boolean(process.env.MP_WEBHOOK_SECRET),
@@ -15,5 +16,6 @@ export function GET() {
         (process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN),
     ),
     vercelEnv: process.env.VERCEL_ENV ?? null,
+    lastWebhook: await getLastWebhook(),
   });
 }

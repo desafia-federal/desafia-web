@@ -30,13 +30,14 @@ const purposes = [
 export default async function ParticipatePage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string }>;
+  searchParams: Promise<{ pago?: string | string[] }>;
 }) {
-  const [{ status }, benefactors] = await Promise.all([searchParams, listBenefactors()]);
+  const [params, benefactors] = await Promise.all([searchParams, listBenefactors()]);
+  const pago = Array.isArray(params.pago) ? params.pago[0] : params.pago;
 
   return (
     <>
-      <PaymentSuccessModal active={status === "approved"} />
+      <PaymentSuccessModal active={pago === "approved"} />
       <section className="dinner-hero">
         <div className="container dinner-hero__grid">
           <div className="dinner-hero__intro">
@@ -44,7 +45,7 @@ export default async function ParticipatePage({
             <h1>Primera cena a beneficio de DESAFÍA Federal.</h1>
           </div>
 
-          <DinnerCheckout paymentStatus={status} />
+          <DinnerCheckout paymentStatus={pago} />
 
           <div className="dinner-hero__details">
             <p className="dinner-hero__lead">

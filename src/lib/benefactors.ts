@@ -105,3 +105,34 @@ export async function listBenefactors(): Promise<Benefactor[]> {
     .sort((a, b) => a.createdAt.localeCompare(b.createdAt))
     .map(toPublic);
 }
+
+// --- Diagnóstico temporal del webhook (quitar tras verificar el deploy) ---
+const DIAG_KEY = "desafia:last_webhook";
+const DIAG_FILE = path.join(process.cwd(), ".data", "last_webhook.json");
+
+export async function setLastWebhook(info: Record<string, unknown>): Promise<void> {
+  const payload = JSON.stringify({ ...info, at: new Date().toISOString() });
+  try {
+    if (useKv) {
+      await kvCommand(["SET", DIAG_KEY, payload]);
+      return;
+    }
+    await fs.mkdir(path.dirname(DIAG_FILE), { recursive: true });
+    await fs.writeFile(DIAG_FILE, payload, "utf8");
+  } catch {
+    // El diagnóstico nunca debe romper el webhook.
+  }
+}
+
+export async function getLastWebhook(): Promise<unknown> {
+  try {
+    if (useKv) {
+      const raw = await kvCommand<string | null>(["GET", DIAG_KEY]);
+      return raw ? JSON.parse(raw) : null;
+    }
+    const raw = await fs.readFile(DIAG_FILE, "utf8");
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
+}

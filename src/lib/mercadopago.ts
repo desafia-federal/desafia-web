@@ -53,9 +53,9 @@ export async function createPreference({ name, message, reference, baseUrl }: Pr
     external_reference: reference,
     statement_descriptor: "DESAFIA CENA",
     back_urls: {
-      success: `${base}/participar?status=approved`,
-      pending: `${base}/participar?status=pending`,
-      failure: `${base}/participar?status=failure`,
+      success: `${base}/participar?pago=approved`,
+      pending: `${base}/participar?pago=pending`,
+      failure: `${base}/participar?pago=failure`,
     },
     auto_return: "approved",
     notification_url: `${base}/api/mercadopago/webhook`,

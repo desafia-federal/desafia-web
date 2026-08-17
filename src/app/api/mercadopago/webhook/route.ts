@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { addBenefactor } from "@/lib/benefactors";
+import { addBenefactor, setLastWebhook } from "@/lib/benefactors";
 import { getPayment, paymentMatchesDinner, verifyWebhookSignature } from "@/lib/mercadopago";
 
 export const runtime = "nodejs";
@@ -19,11 +19,14 @@ export async function POST(request: Request) {
 
   const paymentId = body.data?.id ?? dataId;
   const type = body.type ?? url.searchParams.get("type") ?? "";
+  const hasSignature = Boolean(request.headers.get("x-signature"));
 
   if (type && type !== "payment") {
+    await setLastWebhook({ step: "ignored-type", type, hasSignature });
     return NextResponse.json({ ignored: true });
   }
   if (!paymentId) {
+    await setLastWebhook({ step: "no-payment-id", type, hasSignature });
     return NextResponse.json({ message: "Falta el identificador del pago." }, { status: 400 });
   }
 
@@ -33,12 +36,21 @@ export async function POST(request: Request) {
     dataId: paymentId,
   });
   if (!valid) {
+    await setLastWebhook({ step: "invalid-signature", type, paymentId, hasSignature });
     return NextResponse.json({ message: "Firma inválida." }, { status: 401 });
   }
 
   try {
     const payment = await getPayment(paymentId);
-    if (!paymentMatchesDinner(payment)) {
+    const matched = paymentMatchesDinner(payment);
+    if (!matched) {
+      await setLastWebhook({
+        step: "not-matched",
+        paymentId,
+        paymentStatus: payment.status,
+        amount: payment.transaction_amount,
+        currency: payment.currency_id,
+      });
       return NextResponse.json({ ignored: true });
     }
     const metadata = payment.metadata ?? {};
@@ -47,8 +59,10 @@ export async function POST(request: Request) {
     if (name) {
       await addBenefactor({ paymentId: String(payment.id), name, message: message || undefined });
     }
+    await setLastWebhook({ step: "recorded", paymentId, paymentStatus: payment.status, recorded: Boolean(name) });
     return NextResponse.json({ recorded: Boolean(name) });
   } catch {
+    await setLastWebhook({ step: "error-fetching-payment", paymentId });
     return NextResponse.json({ message: "No pudimos procesar la notificación." }, { status: 502 });
   }
 }
