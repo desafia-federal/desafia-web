@@ -9,8 +9,10 @@ export type Benefactor = {
 
 type StoredBenefactor = Benefactor & { paymentId: string };
 
-const KV_URL = process.env.KV_REST_API_URL;
-const KV_TOKEN = process.env.KV_REST_API_TOKEN;
+// Accept both the Vercel KV and the native Upstash env var names, so the
+// integration works regardless of how the marketplace database is linked.
+const KV_URL = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
+const KV_TOKEN = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
 const KV_KEY = "desafia:benefactors";
 
 const FILE_PATH = path.join(process.cwd(), ".data", "benefactors.json");
