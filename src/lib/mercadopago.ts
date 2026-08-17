@@ -11,14 +11,16 @@ function accessToken(): string {
   return token;
 }
 
-function siteUrl(): string {
-  return (process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000").replace(/\/$/, "");
+function siteUrl(baseUrl?: string): string {
+  const base = baseUrl || process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  return base.replace(/\/$/, "");
 }
 
 export type PreferenceInput = {
   name: string;
   message?: string;
   reference: string;
+  baseUrl?: string;
 };
 
 export type MpPayment = {
@@ -34,8 +36,8 @@ export type MpPayment = {
  * Creates a Mercado Pago Checkout Pro preference for a single dinner ticket.
  * The donor name is stored in metadata so the webhook can trust it later.
  */
-export async function createPreference({ name, message, reference }: PreferenceInput) {
-  const base = siteUrl();
+export async function createPreference({ name, message, reference, baseUrl }: PreferenceInput) {
+  const base = siteUrl(baseUrl);
   const body = {
     items: [
       {

@@ -30,10 +30,15 @@ export async function POST(request: Request) {
   }
 
   try {
+    const forwardedHost = request.headers.get("x-forwarded-host") ?? request.headers.get("host");
+    const forwardedProto = request.headers.get("x-forwarded-proto") ?? "https";
+    const baseUrl = forwardedHost ? `${forwardedProto}://${forwardedHost}` : undefined;
+
     const { initPoint } = await createPreference({
       name,
       message: message.slice(0, 240) || undefined,
       reference: crypto.randomUUID(),
+      baseUrl,
     });
     return NextResponse.json({ initPoint });
   } catch {
