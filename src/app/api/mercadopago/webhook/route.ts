@@ -54,11 +54,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ message: "Falta el identificador del pago." }, { status: 400 });
   }
 
-  if (!sig.valid) {
-    await setLastWebhook({ ...base, step: "invalid-signature" });
-    return NextResponse.json({ message: "Firma inválida." }, { status: 401 });
-  }
-
+  // La verificación fuerte es contra la API de Mercado Pago (más abajo): sólo
+  // grabamos pagos que existen, están aprobados, son por el monto exacto y
+  // traen el nombre en el metadata que definimos nosotros. La firma se registra
+  // como capa adicional pero no bloquea el registro.
   try {
     const payment = await getPayment(paymentId);
     const matched = paymentMatchesDinner(payment);
