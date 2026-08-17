@@ -66,6 +66,30 @@ USD. Los botones permanecen deshabilitados hasta que la asociación esté
 constituida y se agreguen URLs de checkout verificadas. El sitio nunca captura
 ni almacena información de tarjetas.
 
+## Cena fundacional y Mercado Pago
+
+`/participar` presenta la cena a beneficio del 27 de agosto de 2026 y crea una
+preferencia de Checkout Pro por cada reserva. El precio, la moneda y la
+referencia del evento se definen únicamente en el servidor. Antes de habilitar
+el cobro en producción hay que configurar:
+
+- `MERCADO_PAGO_ACCESS_TOKEN`: credencial privada de la aplicación.
+- `MERCADO_PAGO_WEBHOOK_SECRET`: firma secreta del webhook de pagos.
+- `UPSTASH_REDIS_REST_URL` y `UPSTASH_REDIS_REST_TOKEN` (o los equivalentes
+  `KV_REST_API_URL` y `KV_REST_API_TOKEN`): registro persistente de la nómina.
+- `NEXT_PUBLIC_SITE_URL`: origen HTTPS público, sin barra final.
+
+En Mercado Pago se debe registrar el evento `payment` con la URL
+`https://TU_DOMINIO/api/mercado-pago/webhook`. La ruta verifica la firma,
+consulta el pago directamente en Mercado Pago y solo registra un nombre si el
+estado es `approved`, la moneda es ARS, el importe es $150.000 y la referencia
+corresponde a la cena. El ID de pago funciona como clave idempotente.
+
+Para publicar un nombre se solicita consentimiento explícito. El correo se usa
+para iniciar el checkout, no se incluye en la nómina pública y el portal nunca
+recibe datos de tarjeta. Sin todas las variables privadas configuradas, el
+endpoint de checkout rechaza nuevas reservas para evitar cobros sin registro.
+
 ## Contenido y datos
 
 Los indicadores muestran el estado fundacional real de la asociación y metas
