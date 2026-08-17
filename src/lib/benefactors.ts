@@ -106,6 +106,17 @@ export async function listBenefactors(): Promise<Benefactor[]> {
     .map(toPublic);
 }
 
+/** Elimina todos los benefactores. Herramienta temporal para limpiar pruebas. */
+export async function clearBenefactors(): Promise<number> {
+  const existing = await readAll();
+  if (useKv) {
+    await kvCommand(["DEL", KV_KEY]);
+  } else {
+    await writeFileStore([]);
+  }
+  return existing.length;
+}
+
 // --- Diagnóstico temporal del webhook (quitar tras verificar el deploy) ---
 const DIAG_KEY = "desafia:webhook_log";
 const DIAG_FILE = path.join(process.cwd(), ".data", "webhook_log.json");
