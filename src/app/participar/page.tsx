@@ -1,70 +1,124 @@
 import type { Metadata } from "next";
-import { ContactForm } from "@/components/contact-form";
-import { PageHero } from "@/components/page-hero";
-import { involvementOptions } from "@/content/site";
+import Link from "next/link";
+import { BenefactorsWall } from "@/components/benefactors-wall";
+import { DinnerCheckout } from "@/components/dinner-checkout";
+import { PaymentSuccessModal } from "@/components/payment-success-modal";
+import { CheckIcon, MapIcon } from "@/components/icons";
+import { benefitDinner } from "@/content/event";
+import { listBenefactors } from "@/lib/benefactors";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Participar",
-  description:
-    "Sumate a DESAFÍA Federal como persona, nodo local, profesional u organización aliada.",
+  title: "Cena a beneficio · Participar",
+  description: `Sumate a la primera cena a beneficio de DESAFÍA Federal el ${benefitDinner.dateLabel} en ${benefitDinner.venue}, Córdoba. Reservá tu lugar y ayudá a fundar la asociación.`,
 };
 
-export default function ParticipatePage() {
+const details = [
+  { label: "Fecha", value: benefitDinner.dateLabel },
+  { label: "Hora", value: benefitDinner.timeLabel },
+  { label: "Lugar", value: `${benefitDinner.venue} · ${benefitDinner.venueDetail}` },
+  { label: "Menú", value: benefitDinner.menu },
+];
+
+const purposes = [
+  "Constituir legalmente la asociación civil en Córdoba.",
+  "Convocar y conformar la junta de fundadores.",
+  "Sumar a las y los integrantes iniciales de la red federal.",
+];
+
+export default async function ParticipatePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ status?: string }>;
+}) {
+  const [{ status }, benefactors] = await Promise.all([searchParams, listBenefactors()]);
+
   return (
     <>
-      <PageHero eyebrow="Participar" title="Una red federal se construye desde cada lugar.">
-        <p>
-          No importa si llegás con una historia, una profesión, una organización
-          o simplemente con ganas de ayudar. Contanos desde dónde querés
-          transformar barreras.
-        </p>
-      </PageHero>
+      <PaymentSuccessModal active={status === "approved"} />
+      <section className="dinner-hero">
+        <div className="container dinner-hero__grid">
+          <div className="dinner-hero__intro">
+            <p className="eyebrow">{benefitDinner.tagline}</p>
+            <h1>Primera cena a beneficio de DESAFÍA Federal.</h1>
+          </div>
 
-      <section className="section section--cream">
-        <div className="container cards-grid">
-          {involvementOptions.map((option, index) => (
-            <article
-              className={`info-card ${index === 1 ? "info-card--accent" : ""}`}
-              key={option.title}
-            >
-              <p className="eyebrow">{String(index + 1).padStart(2, "0")}</p>
-              <h2>{option.title}</h2>
-              <p>{option.text}</p>
-            </article>
-          ))}
-          <article className="info-card">
-            <p className="eyebrow">04</p>
-            <h2>Aportá conocimiento</h2>
-            <p>
-              Buscamos profesionales de derechos, comunicación, diseño,
-              accesibilidad, contabilidad, salud, educación y tecnología que
-              quieran ofrecer tiempo concreto.
+          <DinnerCheckout paymentStatus={status} />
+
+          <div className="dinner-hero__details">
+            <p className="dinner-hero__lead">
+              El {benefitDinner.dateLabel} a las {benefitDinner.timeLabel} nos encontramos en{" "}
+              {benefitDinner.venue}, {benefitDinner.city}, para dar el puntapié inicial de la
+              asociación. {benefitDinner.purpose}
             </p>
-          </article>
+            <ul className="dinner-hero__facts">
+              {details.map((item) => (
+                <li key={item.label}>
+                  <span>{item.label}</span>
+                  <strong>{item.value}</strong>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
       </section>
 
-      <section className="section section--white" id="formulario">
-        <div className="container contact-layout">
-          <aside className="contact-sidebar">
-            <p className="eyebrow">Contanos sobre vos</p>
-            <h2>Queremos escucharte.</h2>
-            <div className="contact-sidebar__card">
-              <h3>Tu forma de comunicarte</h3>
-              <p>
-                Podés escribirnos con texto, audio, video o mediante una persona
-                de apoyo. No exigimos un único formato.
-              </p>
-            </div>
-            <div className="contact-sidebar__card">
-              <h3>Tus tiempos</h3>
-              <p>
-                No medimos interés por velocidad. Si necesitás más tiempo para
-                responder o participar, lo respetamos.
-              </p>
-            </div>
-          </aside>
-          <ContactForm defaultSubject="Quiero sumarme como persona" />
+      <section className="section section--cream">
+        <div className="container split-intro">
+          <div>
+            <p className="eyebrow">A dónde va tu aporte</p>
+            <h2>Una cena para fundar una red federal.</h2>
+          </div>
+          <div className="split-intro__copy">
+            <ul className="check-list">
+              {purposes.map((purpose) => (
+                <li key={purpose}>
+                  <CheckIcon width={22} height={22} /> {purpose}
+                </li>
+              ))}
+            </ul>
+            <p>
+              Con IT Italy como anfitrión en Córdoba, la primera cena reúne a quienes quieren que
+              la comunicación deje de ser una barrera. Cada cubierto es un ladrillo de la
+              asociación.
+            </p>
+            <p className="dinner-place">
+              <MapIcon width={20} height={20} /> {benefitDinner.venue} — {benefitDinner.venueDetail}
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section className="section section--white" id="benefactores">
+        <div className="container">
+          <p className="eyebrow">Benefactores iniciales</p>
+          <h2 className="benefactors-wall__title">
+            Quienes están fundando DESAFÍA Federal.
+          </h2>
+          <p className="benefactors-wall__intro">
+            Cada persona que reserva su lugar queda registrada acá, en agradecimiento por impulsar
+            el nacimiento de la asociación.
+          </p>
+          <BenefactorsWall initial={benefactors} />
+        </div>
+      </section>
+
+      <section className="section section--cream">
+        <div className="container split-intro">
+          <div>
+            <p className="eyebrow">¿Otra forma de sumarte?</p>
+            <h2>No podés venir pero querés participar.</h2>
+          </div>
+          <div className="split-intro__copy">
+            <p>
+              Si no podés asistir a la cena pero querés colaborar con la fundación de la asociación,
+              escribinos y encontramos juntos la mejor manera.
+            </p>
+            <Link href="/contacto" className="button button--primary">
+              Escribinos
+            </Link>
+          </div>
         </div>
       </section>
     </>
