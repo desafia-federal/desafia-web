@@ -13,9 +13,9 @@ export default function Home() {
       <section className="home-hero">
         <div className="container home-hero__grid">
           <div className="home-hero__content">
-            <p className="eyebrow">Desde Córdoba. Para todo el país.</p>
+            <p className="eyebrow">Desde el interior. Para todo el país.</p>
             <h1>
-              Comunicarse es un derecho. <em>Quedar afuera no.</em>
+              Comunicarse es un derecho. <em className="home-hero__title-em">Quedar afuera no.</em>
             </h1>
             <p className="home-hero__lead">
               Somos una asociación civil en formación para afrontar y
