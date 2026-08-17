@@ -32,6 +32,18 @@ pnpm typecheck
 pnpm build
 ```
 
+## Sistema de marca
+
+La interfaz implementa el Manual de Marca DESAFÍA Federal v1.1. Los tokens
+centrales están en `src/app/globals.css`: Azul Derecho `#032545`, Violeta
+Acción `#7537E2`, Lavanda Encuentro `#DCB4FA`, Naranja Expresión `#FB9A33`,
+Crema Comunidad `#FEEFD5` y blanco. Inter es la familia principal y Georgia se
+reserva para énfasis editorial y relatos.
+
+Los activos web optimizados están en `public/brand`. No se debe reconstruir el
+wordmark con texto, deformar el logo ni separar sus elementos. Toda nueva
+combinación de texto y fondo debe conservar, como mínimo, contraste WCAG AA.
+
 ## Despliegue en Vercel
 
 1. Importá este repositorio en Vercel.
