@@ -107,12 +107,15 @@ export async function listBenefactors(): Promise<Benefactor[]> {
 }
 
 // --- Diagnóstico temporal del webhook (quitar tras verificar el deploy) ---
-const DIAG_KEY = "desafia:last_webhook";
-const DIAG_FILE = path.join(process.cwd(), ".data", "last_webhook.json");
+const DIAG_KEY = "desafia:webhook_log";
+const DIAG_FILE = path.join(process.cwd(), ".data", "webhook_log.json");
 
 export async function setLastWebhook(info: Record<string, unknown>): Promise<void> {
-  const payload = JSON.stringify({ ...info, at: new Date().toISOString() });
+  const entry = { ...info, at: new Date().toISOString() };
   try {
+    const current = ((await getLastWebhook()) as unknown[]) || [];
+    const next = [entry, ...current].slice(0, 5);
+    const payload = JSON.stringify(next);
     if (useKv) {
       await kvCommand(["SET", DIAG_KEY, payload]);
       return;
@@ -128,11 +131,11 @@ export async function getLastWebhook(): Promise<unknown> {
   try {
     if (useKv) {
       const raw = await kvCommand<string | null>(["GET", DIAG_KEY]);
-      return raw ? JSON.parse(raw) : null;
+      return raw ? JSON.parse(raw) : [];
     }
     const raw = await fs.readFile(DIAG_FILE, "utf8");
     return JSON.parse(raw);
   } catch {
-    return null;
+    return [];
   }
 }

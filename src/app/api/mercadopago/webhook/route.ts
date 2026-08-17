@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { addBenefactor, setLastWebhook } from "@/lib/benefactors";
-import { getPayment, paymentMatchesDinner, verifyWebhookSignature } from "@/lib/mercadopago";
+import { getPayment, inspectWebhookSignature, paymentMatchesDinner } from "@/lib/mercadopago";
 
 export const runtime = "nodejs";
 
@@ -8,7 +8,9 @@ export const runtime = "nodejs";
 // and only 4xx/5xx when we genuinely could not process the notification.
 export async function POST(request: Request) {
   const url = new URL(request.url);
-  const dataId = url.searchParams.get("data.id") ?? url.searchParams.get("id");
+  const queryDataId = url.searchParams.get("data.id");
+  const queryId = url.searchParams.get("id");
+  const topic = url.searchParams.get("topic") ?? url.searchParams.get("type") ?? "";
 
   let body: { type?: string; action?: string; data?: { id?: string } } = {};
   try {
@@ -17,26 +19,43 @@ export async function POST(request: Request) {
     // Some notifications arrive without a JSON body.
   }
 
-  const paymentId = body.data?.id ?? dataId;
-  const type = body.type ?? url.searchParams.get("type") ?? "";
-  const hasSignature = Boolean(request.headers.get("x-signature"));
+  const type = body.type ?? topic ?? "";
+  const paymentId = body.data?.id ?? queryDataId ?? queryId;
+  // MP builds the signature manifest from the `data.id` query param.
+  const signatureId = queryDataId ?? body.data?.id ?? queryId;
 
-  if (type && type !== "payment") {
-    await setLastWebhook({ step: "ignored-type", type, hasSignature });
+  const sig = inspectWebhookSignature({
+    signatureHeader: request.headers.get("x-signature"),
+    requestId: request.headers.get("x-request-id"),
+    dataId: signatureId,
+  });
+
+  const base = {
+    rawQuery: url.search,
+    type,
+    topic,
+    paymentId,
+    signatureId,
+    requestId: request.headers.get("x-request-id"),
+    manifest: sig.manifest,
+    computedPrefix: sig.computed.slice(0, 12),
+    receivedPrefix: sig.received.slice(0, 12),
+    signatureValid: sig.valid,
+  };
+
+  // Ignore merchant_order notifications: we only care about payments.
+  if (type === "merchant_order" || topic === "merchant_order") {
+    await setLastWebhook({ ...base, step: "ignored-merchant-order" });
     return NextResponse.json({ ignored: true });
   }
+
   if (!paymentId) {
-    await setLastWebhook({ step: "no-payment-id", type, hasSignature });
+    await setLastWebhook({ ...base, step: "no-payment-id" });
     return NextResponse.json({ message: "Falta el identificador del pago." }, { status: 400 });
   }
 
-  const valid = verifyWebhookSignature({
-    signatureHeader: request.headers.get("x-signature"),
-    requestId: request.headers.get("x-request-id"),
-    dataId: paymentId,
-  });
-  if (!valid) {
-    await setLastWebhook({ step: "invalid-signature", type, paymentId, hasSignature });
+  if (!sig.valid) {
+    await setLastWebhook({ ...base, step: "invalid-signature" });
     return NextResponse.json({ message: "Firma inválida." }, { status: 401 });
   }
 
@@ -45,8 +64,8 @@ export async function POST(request: Request) {
     const matched = paymentMatchesDinner(payment);
     if (!matched) {
       await setLastWebhook({
+        ...base,
         step: "not-matched",
-        paymentId,
         paymentStatus: payment.status,
         amount: payment.transaction_amount,
         currency: payment.currency_id,
@@ -59,10 +78,10 @@ export async function POST(request: Request) {
     if (name) {
       await addBenefactor({ paymentId: String(payment.id), name, message: message || undefined });
     }
-    await setLastWebhook({ step: "recorded", paymentId, paymentStatus: payment.status, recorded: Boolean(name) });
+    await setLastWebhook({ ...base, step: "recorded", paymentStatus: payment.status, recorded: Boolean(name) });
     return NextResponse.json({ recorded: Boolean(name) });
   } catch {
-    await setLastWebhook({ step: "error-fetching-payment", paymentId });
+    await setLastWebhook({ ...base, step: "error-fetching-payment" });
     return NextResponse.json({ message: "No pudimos procesar la notificación." }, { status: 502 });
   }
 }

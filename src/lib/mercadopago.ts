@@ -98,15 +98,16 @@ export async function getPayment(id: string): Promise<MpPayment> {
  * Validates the Mercado Pago `x-signature` header using the webhook secret.
  * Returns true when the HMAC matches the documented manifest template.
  */
-export function verifyWebhookSignature(params: {
+export function inspectWebhookSignature(params: {
   signatureHeader: string | null;
   requestId: string | null;
   dataId: string | null;
-}): boolean {
+}): { valid: boolean; manifest: string; computed: string; received: string } {
+  const empty = { valid: false, manifest: "", computed: "", received: "" };
   const secret = process.env.MP_WEBHOOK_SECRET;
-  if (!secret) return false;
+  if (!secret) return empty;
   const { signatureHeader, requestId, dataId } = params;
-  if (!signatureHeader || !dataId) return false;
+  if (!signatureHeader || !dataId) return empty;
 
   const parts = Object.fromEntries(
     signatureHeader.split(",").map((segment) => {
@@ -116,15 +117,26 @@ export function verifyWebhookSignature(params: {
   );
   const ts = parts.ts;
   const v1 = parts.v1;
-  if (!ts || !v1) return false;
+  if (!ts || !v1) return empty;
 
   const manifest = `id:${dataId.toLowerCase()};request-id:${requestId ?? ""};ts:${ts};`;
-  const expected = crypto.createHmac("sha256", secret).update(manifest).digest("hex");
+  const computed = crypto.createHmac("sha256", secret).update(manifest).digest("hex");
 
-  const expectedBuffer = Buffer.from(expected);
+  let valid = false;
+  const expectedBuffer = Buffer.from(computed);
   const receivedBuffer = Buffer.from(v1);
-  if (expectedBuffer.length !== receivedBuffer.length) return false;
-  return crypto.timingSafeEqual(expectedBuffer, receivedBuffer);
+  if (expectedBuffer.length === receivedBuffer.length) {
+    valid = crypto.timingSafeEqual(expectedBuffer, receivedBuffer);
+  }
+  return { valid, manifest, computed, received: v1 };
+}
+
+export function verifyWebhookSignature(params: {
+  signatureHeader: string | null;
+  requestId: string | null;
+  dataId: string | null;
+}): boolean {
+  return inspectWebhookSignature(params).valid;
 }
 
 export function paymentMatchesDinner(payment: MpPayment): boolean {
