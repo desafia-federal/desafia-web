@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { BenefactorsWall } from "@/components/benefactors-wall";
 import { DinnerCheckout } from "@/components/dinner-checkout";
+import { PaymentSuccessModal } from "@/components/payment-success-modal";
 import { CheckIcon, MapIcon } from "@/components/icons";
 import { benefitDinner } from "@/content/event";
 import { listBenefactors } from "@/lib/benefactors";
@@ -35,6 +36,7 @@ export default async function ParticipatePage({
 
   return (
     <>
+      <PaymentSuccessModal active={status === "approved"} />
       <section className="dinner-hero">
         <div className="container dinner-hero__grid">
           <div className="dinner-hero__intro">

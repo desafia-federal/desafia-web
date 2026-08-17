@@ -7,10 +7,6 @@ import { priceLabel } from "@/content/event";
 type Status = "idle" | "loading" | "error";
 
 const paymentNotices: Record<string, { tone: "success" | "info" | "error"; text: string }> = {
-  approved: {
-    tone: "success",
-    text: "¡Gracias! Tu pago fue aprobado y tu lugar quedó reservado. Tu nombre aparecerá entre los benefactores iniciales en unos minutos.",
-  },
   pending: {
     tone: "info",
     text: "Tu pago quedó pendiente de acreditación. Cuando se confirme, tu lugar y tu nombre quedarán registrados.",
