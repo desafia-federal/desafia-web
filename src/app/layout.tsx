@@ -25,14 +25,15 @@ export const metadata: Metadata = {
   ],
   openGraph: {
     title: "DESAFÍA Federal",
-    description: "Afrontar y transformar la exclusión.",
+    description:
+      "Asociación civil desde Córdoba que afronta y transforma la exclusión causada por las barreras para comunicarse.",
     url: siteUrl,
     locale: "es_AR",
     type: "website",
     siteName: "DESAFÍA Federal",
     images: [
       {
-        url: "/images/open-graph.png",
+        url: "/images/open-graph.jpg",
         width: 1200,
         height: 630,
         alt: "DESAFÍA Federal",
@@ -42,8 +43,9 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "DESAFÍA Federal",
-    description: "Afrontar y transformar la exclusión.",
-    images: ["/images/open-graph.png"],
+    description:
+      "Asociación civil desde Córdoba que afronta y transforma la exclusión causada por las barreras para comunicarse.",
+    images: ["/images/open-graph.jpg"],
   },
 };
 
