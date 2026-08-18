@@ -26,14 +26,24 @@ export const metadata: Metadata = {
   openGraph: {
     title: "DESAFÍA Federal",
     description: "Afrontar y transformar la exclusión.",
+    url: siteUrl,
     locale: "es_AR",
     type: "website",
     siteName: "DESAFÍA Federal",
+    images: [
+      {
+        url: "/images/open-graph.png",
+        width: 1200,
+        height: 630,
+        alt: "DESAFÍA Federal",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "DESAFÍA Federal",
     description: "Afrontar y transformar la exclusión.",
+    images: ["/images/open-graph.png"],
   },
 };
 

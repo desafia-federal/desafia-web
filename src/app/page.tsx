@@ -38,7 +38,7 @@ export default function Home() {
 
           <figure className="hero-photo">
             <Image
-              src="/images/experiencia-cboard-presentacion.webp"
+              src="/images/hero-main.png"
               alt="Martín Bedouret presentando tecnología de comunicación aumentativa ante una audiencia"
               fill
               priority
