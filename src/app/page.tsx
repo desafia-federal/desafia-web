@@ -51,10 +51,16 @@ export default function Home() {
           </figure>
         </div>
         <div className="hero-marquee" aria-hidden="true">
-          <span>Comunicación</span>
-          <span>Autonomía</span>
-          <span>Derechos</span>
-          <span>Federalismo</span>
+          <div className="hero-marquee__track">
+            <span>Comunicación</span>
+            <span>Autonomía</span>
+            <span>Derechos</span>
+            <span>Federalismo</span>
+            <span>Comunicación</span>
+            <span>Autonomía</span>
+            <span>Derechos</span>
+            <span>Federalismo</span>
+          </div>
         </div>
       </section>
 

@@ -524,9 +524,7 @@ h3 {
 .hero-marquee {
   position: relative;
   z-index: 1;
-  display: flex;
-  width: max-content;
-  gap: 42px;
+  overflow: hidden;
   padding-block: 22px;
   color: var(--white);
   background: var(--purple);
@@ -534,6 +532,22 @@ h3 {
   font-weight: 900;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+}
+
+.hero-marquee__track {
+  display: flex;
+  width: max-content;
+  gap: 42px;
+  animation: hero-marquee-scroll 26s linear infinite;
+}
+
+@keyframes hero-marquee-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(calc(-50% - 21px));
+  }
 }
 
 .hero-marquee span::before {
