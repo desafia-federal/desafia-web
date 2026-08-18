@@ -49,8 +49,7 @@ export default async function ParticipatePage({
 
           <div className="dinner-hero__details">
             <p className="dinner-hero__lead">
-              El {benefitDinner.dateLabel} a las {benefitDinner.timeLabel} nos encontramos en{" "}
-              {benefitDinner.venue}, {benefitDinner.city}, para dar el puntapié inicial de la
+              El {benefitDinner.dateLabel} a las {benefitDinner.timeLabel} nos encontramos en {benefitDinner.city}, para dar el puntapié inicial de la
               asociación. {benefitDinner.purpose}
             </p>
             <ul className="dinner-hero__facts">
