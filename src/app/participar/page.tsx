@@ -17,7 +17,7 @@ export const metadata: Metadata = {
 const details = [
   { label: "Fecha", value: benefitDinner.dateLabel },
   { label: "Hora", value: benefitDinner.timeLabel },
-  { label: "Lugar", value: `${benefitDinner.venue} · ${benefitDinner.venueDetail}` },
+  // { label: "Lugar", value: `${benefitDinner.venue} · ${benefitDinner.venueDetail}` },
   { label: "Menú", value: benefitDinner.menu },
 ];
 
@@ -80,7 +80,7 @@ export default async function ParticipatePage({
               ))}
             </ul>
             <p>
-              Con IT Italy como anfitrión en Córdoba, la primera cena reúne a quienes quieren que
+              La primera cena reúne a quienes quieren que
               la comunicación deje de ser una barrera. Cada cubierto es un ladrillo de la
               asociación.
             </p>
