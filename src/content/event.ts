@@ -9,7 +9,7 @@ export const benefitDinner = {
   venueDetail: "Sucursal de la ciudad de Córdoba",
   city: "Córdoba, Argentina",
   menu: "Menú fijo de tres pasos",
-  price: 150000,
+  price: 100,
   currency: "ARS",
   purpose:
     "Los fondos se destinan a constituir la asociación civil en Córdoba y a convocar a la junta de fundadores e integrantes iniciales.",
