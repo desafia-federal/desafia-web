@@ -18,7 +18,6 @@ function siteUrl(baseUrl?: string): string {
 
 export type PreferenceInput = {
   name: string;
-  email: string;
   message?: string;
   reference: string;
   baseUrl?: string;
@@ -37,7 +36,7 @@ export type MpPayment = {
  * Creates a Mercado Pago Checkout Pro preference for a single dinner ticket.
  * The donor name is stored in metadata so the webhook can trust it later.
  */
-export async function createPreference({ name, email, message, reference, baseUrl }: PreferenceInput) {
+export async function createPreference({ name, message, reference, baseUrl }: PreferenceInput) {
   const base = siteUrl(baseUrl);
   const body = {
     items: [
@@ -50,8 +49,7 @@ export async function createPreference({ name, email, message, reference, baseUr
         currency_id: benefitDinner.currency,
       },
     ],
-    payer: { email },
-    metadata: { donor_name: name, donor_email: email, donor_message: message ?? "" },
+    metadata: { donor_name: name, donor_message: message ?? "" },
     external_reference: reference,
     statement_descriptor: "DESAFIA CENA",
     back_urls: {

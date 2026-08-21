@@ -7,7 +7,7 @@ export type Benefactor = {
   createdAt: string;
 };
 
-type StoredBenefactor = Benefactor & { paymentId: string; email?: string };
+type StoredBenefactor = Benefactor & { paymentId: string };
 
 // Accept both the Vercel KV and the native Upstash env var names, so the
 // integration works regardless of how the marketplace database is linked.
@@ -19,7 +19,6 @@ const FILE_PATH = path.join(process.cwd(), ".data", "benefactors.json");
 
 const MAX_NAME = 80;
 const MAX_MESSAGE = 240;
-const MAX_EMAIL = 120;
 
 function sanitize(value: string, max: number): string {
   return value.replace(/\s+/g, " ").trim().slice(0, max);
@@ -77,7 +76,6 @@ async function readAll(): Promise<StoredBenefactor[]> {
 export async function addBenefactor(entry: {
   paymentId: string;
   name: string;
-  email?: string;
   message?: string;
 }): Promise<void> {
   const name = sanitize(entry.name, MAX_NAME);
@@ -88,8 +86,6 @@ export async function addBenefactor(entry: {
     name,
     createdAt: new Date().toISOString(),
   };
-  const email = entry.email ? sanitize(entry.email, MAX_EMAIL) : "";
-  if (email) record.email = email;
   const message = entry.message ? sanitize(entry.message, MAX_MESSAGE) : "";
   if (message) record.message = message;
 

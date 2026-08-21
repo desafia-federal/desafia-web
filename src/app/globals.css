@@ -1844,6 +1844,64 @@ h3 {
   gap: 16px;
 }
 
+.dinner-checkout__amount {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--yellow-soft);
+}
+
+.dinner-checkout__amount legend {
+  padding: 0;
+  font-weight: 600;
+}
+
+.dinner-checkout__amount-note {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.86rem;
+  line-height: 1.4;
+}
+
+.dinner-checkout__amount-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.dinner-checkout__chip {
+  flex: 1 1 auto;
+  min-width: 88px;
+  padding: 9px 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--white);
+  color: var(--ink);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.dinner-checkout__chip:hover {
+  border-color: var(--ink);
+}
+
+.dinner-checkout__chip.is-active {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--white);
+}
+
+.dinner-checkout__amount-hint {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
 .dinner-checkout__submit {
   width: 100%;
 }

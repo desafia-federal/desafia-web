@@ -46,15 +46,9 @@ export async function POST(request: Request) {
     }
     const metadata = payment.metadata ?? {};
     const name = String(metadata.donor_name ?? "").trim();
-    const email = String(metadata.donor_email ?? "").trim();
     const message = String(metadata.donor_message ?? "").trim();
     if (name) {
-      await addBenefactor({
-        paymentId: String(payment.id),
-        name,
-        email: email || undefined,
-        message: message || undefined,
-      });
+      await addBenefactor({ paymentId: String(payment.id), name, message: message || undefined });
     }
     return NextResponse.json({ recorded: Boolean(name) });
   } catch {

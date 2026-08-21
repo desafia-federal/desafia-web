@@ -37,13 +37,21 @@ export const benefitDinner = {
     },
   ],
   price: 150000,
+  minPrice: 1000,
   currency: "ARS",
   purpose:
     "Los fondos se destinan a constituir la asociación civil en Córdoba y a convocar a la junta de fundadores e integrantes iniciales.",
 } as const;
 
-export const priceLabel = new Intl.NumberFormat("es-AR", {
-  style: "currency",
-  currency: benefitDinner.currency,
-  maximumFractionDigits: 0,
-}).format(benefitDinner.price);
+export function formatPrice(amount: number): string {
+  return new Intl.NumberFormat("es-AR", {
+    style: "currency",
+    currency: benefitDinner.currency,
+    maximumFractionDigits: 0,
+  }).format(amount);
+}
+
+export const priceLabel = formatPrice(benefitDinner.price);
+export const minPriceLabel = formatPrice(benefitDinner.minPrice);
+
+export const suggestedAmounts = [benefitDinner.minPrice, 50000, 100000, benefitDinner.price] as const;

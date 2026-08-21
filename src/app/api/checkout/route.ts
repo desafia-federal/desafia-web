@@ -1,5 +1,6 @@
 import crypto from "node:crypto";
 import { NextResponse } from "next/server";
+import { benefitDinner } from "@/content/event";
 import { createPreference } from "@/lib/mercadopago";
 
 export const runtime = "nodejs";
@@ -38,6 +39,15 @@ export async function POST(request: Request) {
     );
   }
 
+  const MAX_AMOUNT = 10_000_000;
+  const amount = Math.round(Number(body.amount));
+  if (!Number.isFinite(amount) || amount < benefitDinner.minPrice || amount > MAX_AMOUNT) {
+    return NextResponse.json(
+      { message: "Ingresá un monto de aporte válido." },
+      { status: 400 },
+    );
+  }
+
   try {
     const forwardedHost = request.headers.get("x-forwarded-host") ?? request.headers.get("host");
     const forwardedProto = request.headers.get("x-forwarded-proto") ?? "https";
@@ -47,6 +57,7 @@ export async function POST(request: Request) {
       name,
       email,
       message: message.slice(0, 240) || undefined,
+      amount,
       reference: crypto.randomUUID(),
       baseUrl,
     });

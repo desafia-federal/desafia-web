@@ -2,7 +2,7 @@
 
 import { FormEvent, useState } from "react";
 import { ArrowRight, HeartIcon, LockIcon } from "@/components/icons";
-import { priceLabel } from "@/content/event";
+import { benefitDinner, formatPrice, priceLabel, suggestedAmounts } from "@/content/event";
 
 type Status = "idle" | "loading" | "error";
 
@@ -20,12 +20,21 @@ const paymentNotices: Record<string, { tone: "success" | "info" | "error"; text:
 export function DinnerCheckout({ paymentStatus }: { paymentStatus?: string }) {
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState("");
+  const [amount, setAmount] = useState<number>(benefitDinner.price);
   const notice = paymentStatus ? paymentNotices[paymentStatus] : undefined;
+  const isValidAmount = Number.isFinite(amount) && amount >= benefitDinner.minPrice;
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = event.currentTarget;
     const data = Object.fromEntries(new FormData(form).entries());
+
+    if (!isValidAmount) {
+      setStatus("error");
+      setError(`El aporte mínimo es ${formatPrice(benefitDinner.minPrice)}.`);
+      return;
+    }
+
     setStatus("loading");
     setError("");
 
@@ -33,7 +42,7 @@ export function DinnerCheckout({ paymentStatus }: { paymentStatus?: string }) {
       const response = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: data.name, email: data.email, message: data.message }),
+        body: JSON.stringify({ name: data.name, email: data.email, message: data.message, amount }),
       });
       const payload = (await response.json()) as { initPoint?: string; message?: string };
       if (!response.ok || !payload.initPoint) {
@@ -49,9 +58,11 @@ export function DinnerCheckout({ paymentStatus }: { paymentStatus?: string }) {
   return (
     <div className="dinner-checkout" id="reservar">
       <div className="dinner-checkout__price">
-        <span className="eyebrow">Valor por cubierto</span>
+        <span className="eyebrow">Aporte sugerido por cubierto</span>
         <strong>{priceLabel}</strong>
-        <span className="dinner-checkout__price-note">Menú fijo · una persona</span>
+        <span className="dinner-checkout__price-note">
+          Elegí el monto que puedas: nadie queda afuera.
+        </span>
       </div>
 
       {notice ? (
@@ -61,6 +72,43 @@ export function DinnerCheckout({ paymentStatus }: { paymentStatus?: string }) {
       ) : null}
 
       <form className="dinner-checkout__form" onSubmit={handleSubmit}>
+        <fieldset className="dinner-checkout__amount">
+          <legend>Elegí tu aporte voluntario</legend>
+          <p className="dinner-checkout__amount-note">
+            Cualquier aporte, grande o chico, da lo mismo: te suma a la cena y te deja en la lista de
+            benefactores. No queremos excluir a nadie.
+          </p>
+          <div className="dinner-checkout__amount-options">
+            {suggestedAmounts.map((value) => (
+              <button
+                type="button"
+                key={value}
+                className={`dinner-checkout__chip${amount === value ? " is-active" : ""}`}
+                onClick={() => setAmount(value)}
+                aria-pressed={amount === value}
+              >
+                {formatPrice(value)}
+              </button>
+            ))}
+          </div>
+          <div className="field">
+            <label htmlFor="donor-amount">Otro monto (ARS)</label>
+            <input
+              id="donor-amount"
+              name="amount"
+              type="number"
+              inputMode="numeric"
+              min={benefitDinner.minPrice}
+              step={1000}
+              value={Number.isFinite(amount) ? amount : ""}
+              onChange={(event) => setAmount(Math.round(Number(event.target.value)))}
+              required
+            />
+            <span className="dinner-checkout__amount-hint">
+              Aporte mínimo {formatPrice(benefitDinner.minPrice)}.
+            </span>
+          </div>
+        </fieldset>
         <div className="field">
           <label htmlFor="donor-name">Nombre para los benefactores</label>
           <input
@@ -94,7 +142,9 @@ export function DinnerCheckout({ paymentStatus }: { paymentStatus?: string }) {
           />
         </div>
         <button className="button button--primary dinner-checkout__submit" disabled={status === "loading"}>
-          {status === "loading" ? "Redirigiendo…" : `Reservar mi lugar · ${priceLabel}`}
+          {status === "loading"
+            ? "Redirigiendo…"
+            : `Aportar${isValidAmount ? ` ${formatPrice(amount)}` : ""}`}
           {status === "loading" ? null : <ArrowRight width={19} height={19} />}
         </button>
       </form>
