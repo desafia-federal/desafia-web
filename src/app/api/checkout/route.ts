@@ -20,11 +20,20 @@ export async function POST(request: Request) {
   }
 
   const name = String(body.name || "").replace(/\s+/g, " ").trim();
+  const email = String(body.email || "").trim();
   const message = String(body.message || "").replace(/\s+/g, " ").trim();
 
   if (name.length < 2 || name.length > 80) {
     return NextResponse.json(
       { message: "Ingresá tu nombre para reservar tu lugar." },
+      { status: 400 },
+    );
+  }
+
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailPattern.test(email) || email.length > 120) {
+    return NextResponse.json(
+      { message: "Ingresá un email válido para enviarte la confirmación." },
       { status: 400 },
     );
   }
@@ -36,6 +45,7 @@ export async function POST(request: Request) {
 
     const { initPoint } = await createPreference({
       name,
+      email,
       message: message.slice(0, 240) || undefined,
       reference: crypto.randomUUID(),
       baseUrl,

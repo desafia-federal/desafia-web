@@ -33,7 +33,7 @@ export function DinnerCheckout({ paymentStatus }: { paymentStatus?: string }) {
       const response = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: data.name, message: data.message }),
+        body: JSON.stringify({ name: data.name, email: data.email, message: data.message }),
       });
       const payload = (await response.json()) as { initPoint?: string; message?: string };
       if (!response.ok || !payload.initPoint) {
@@ -70,6 +70,18 @@ export function DinnerCheckout({ paymentStatus }: { paymentStatus?: string }) {
             maxLength={80}
             required
             placeholder="Cómo querés figurar"
+          />
+        </div>
+        <div className="field">
+          <label htmlFor="donor-email">Email</label>
+          <input
+            id="donor-email"
+            name="email"
+            type="email"
+            autoComplete="email"
+            maxLength={120}
+            required
+            placeholder="tucorreo@ejemplo.com"
           />
         </div>
         <div className="field">

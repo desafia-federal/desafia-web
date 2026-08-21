@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { BenefactorsWall } from "@/components/benefactors-wall";
 import { DinnerCheckout } from "@/components/dinner-checkout";
 import { PaymentSuccessModal } from "@/components/payment-success-modal";
-import { CheckIcon, MapIcon } from "@/components/icons";
+import { ArrowUpRight, CheckIcon, InstagramIcon, MapIcon, PinIcon } from "@/components/icons";
 import { benefitDinner } from "@/content/event";
 import { listBenefactors } from "@/lib/benefactors";
 
@@ -17,7 +18,7 @@ export const metadata: Metadata = {
 const details = [
   { label: "Fecha", value: benefitDinner.dateLabel },
   { label: "Hora", value: benefitDinner.timeLabel },
-  // { label: "Lugar", value: `${benefitDinner.venue} · ${benefitDinner.venueDetail}` },
+  { label: "Lugar", value: benefitDinner.venue },
   { label: "Menú", value: benefitDinner.menu },
 ];
 
@@ -49,7 +50,7 @@ export default async function ParticipatePage({
 
           <div className="dinner-hero__details">
             <p className="dinner-hero__lead">
-              El {benefitDinner.dateLabel} a las {benefitDinner.timeLabel} nos encontramos en {benefitDinner.city}, para dar el puntapié inicial de la
+              El {benefitDinner.dateLabel} a las {benefitDinner.timeLabel} nos encontramos en {benefitDinner.venue}, {benefitDinner.city}, para dar el puntapié inicial de la
               asociación. {benefitDinner.purpose}
             </p>
             <ul className="dinner-hero__facts">
@@ -60,6 +61,61 @@ export default async function ParticipatePage({
                 </li>
               ))}
             </ul>
+          </div>
+        </div>
+      </section>
+
+      <section className="section section--white" id="lugar">
+        <div className="container venue">
+          <div className="venue__media">
+            <Image
+              src={benefitDinner.venueImage}
+              alt={benefitDinner.venueImageAlt}
+              fill
+              sizes="(max-width: 880px) 100vw, 48vw"
+            />
+          </div>
+          <div className="venue__info">
+            <p className="eyebrow">El lugar</p>
+            <h2>{benefitDinner.venue}</h2>
+            <p className="venue__address">
+              <PinIcon width={20} height={20} /> {benefitDinner.address}
+            </p>
+            <div className="venue__links">
+              <a
+                href={benefitDinner.mapsUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="button button--primary"
+              >
+                <MapIcon width={20} height={20} /> ¿Cómo llegar?
+              </a>
+              <a
+                href={benefitDinner.instagramUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="venue__instagram"
+              >
+                <InstagramIcon width={20} height={20} /> {benefitDinner.instagramLabel}
+                <ArrowUpRight width={16} height={16} />
+              </a>
+            </div>
+
+            <div className="venue__menu">
+              <h3>Menú de la cena</h3>
+              <ul className="menu-list">
+                {benefitDinner.menuSections.map((course) => (
+                  <li key={course.title}>
+                    <span className="menu-list__course">{course.title}</span>
+                    <ul>
+                      {course.items.map((item) => (
+                        <li key={item}>{item}</li>
+                      ))}
+                    </ul>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
         </div>
       </section>

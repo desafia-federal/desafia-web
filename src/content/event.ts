@@ -5,10 +5,37 @@ export const benefitDinner = {
   dateLabel: "Jueves 27 de agosto de 2026",
   time: "21:00",
   timeLabel: "21:00 h",
-  venue: "IT Italy",
-  venueDetail: "Sucursal de la ciudad de Córdoba",
+  venue: "Bodegón Don Núñez",
+  venueDetail: "Rafael Núñez 5568 — Córdoba",
+  address: "Rafael Núñez 5568, Córdoba",
+  instagramUrl: "https://www.instagram.com/bodegondonnunez",
+  instagramLabel: "@bodegondonnunez",
+  mapsUrl:
+    "https://www.google.com/maps/search/?api=1&query=Bodeg%C3%B3n+Don+N%C3%BA%C3%B1ez+Rafael+N%C3%BA%C3%B1ez+5568+C%C3%B3rdoba",
+  venueImage: "/images/bodegon-don-nunez.png",
+  venueImageAlt: "Frente del Bodegón Don Núñez iluminado de noche.",
   city: "Córdoba, Argentina",
-  menu: "Menú fijo de tres pasos",
+  menu: "Menú de tres pasos",
+  menuSections: [
+    {
+      title: "Entrada",
+      items: [
+        "Empanada de carne cortada a cuchillo",
+        "Bruschetta clásica",
+      ],
+    },
+    {
+      title: "Plato principal",
+      items: [
+        "Pechuga Cordon Blue: pechuga rellena con jamón y queso, grillada, con salsa de hongos y puerro",
+        "Guarnición: papas cuña con crema",
+      ],
+    },
+    {
+      title: "Postre",
+      items: ["Bombón helado con baño de salsa de chocolate"],
+    },
+  ],
   price: 150000,
   currency: "ARS",
   purpose:
