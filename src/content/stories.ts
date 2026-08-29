@@ -41,7 +41,7 @@ export const stories: Story[] = [
     date: "27 de agosto de 2026",
     dateISO: "2026-08-27",
     readTime: "5 min",
-    image: "/images/cena-fundacion-relato.webp",
+    image: "/images/cena-fundacion-relato.jpg",
     imageAlt:
       "Personas reunidas alrededor de las mesas durante la primera cena a beneficio de DESAFÍA Federal en Córdoba.",
     paragraphs: [
@@ -56,7 +56,7 @@ export const stories: Story[] = [
     media: [
       {
         type: "image",
-        src: "/images/cena-fundacion-familia.webp",
+        src: "/images/cena-fundacion-familia.jpg",
         alt: "Una persona usuaria de silla de ruedas acompañada por tres familiares durante la cena de fundación.",
         width: 846,
         height: 711,
@@ -65,7 +65,7 @@ export const stories: Story[] = [
       },
       {
         type: "image",
-        src: "/images/cena-fundacion-torta.webp",
+        src: "/images/cena-fundacion-torta.jpg",
         alt: "Una persona frente a tres tortas y copas preparadas para el brindis durante la celebración.",
         width: 1467,
         height: 2048,
@@ -74,7 +74,7 @@ export const stories: Story[] = [
       },
       {
         type: "image",
-        src: "/images/cena-fundacion-fundadores.webp",
+        src: "/images/cena-fundacion-fundadores.jpg",
         alt: "Grupo de asistentes posando juntos durante la primera cena a beneficio de DESAFÍA Federal.",
         width: 2048,
         height: 837,
@@ -85,14 +85,12 @@ export const stories: Story[] = [
       {
         type: "video",
         src: "/videos/cena-fundacion-willy-magia-1.mp4",
-        poster: "/images/cena-fundacion-willy-magia-1-poster.jpg",
         label: "Video del show de magia durante la cena de fundación",
         caption: "Willy Magia durante su show en la cena de fundación.",
       },
       {
         type: "video",
         src: "/videos/cena-fundacion-willy-magia-2.mp4",
-        poster: "/images/cena-fundacion-willy-magia-2-poster.jpg",
         label: "Segundo video del show de magia durante la cena de fundación",
         caption: "Otro momento del show de Willy Magia.",
       },
