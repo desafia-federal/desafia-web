@@ -20,7 +20,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ...stories.map((story) => ({
       url: `${baseUrl}/historias/${story.slug}`,
       changeFrequency: "yearly" as const,
-      lastModified: new Date("2026-08-16"),
+      lastModified: new Date(story.dateISO),
     })),
   ];
 }
