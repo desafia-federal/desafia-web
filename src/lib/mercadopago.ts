@@ -2,6 +2,7 @@ import crypto from "node:crypto";
 import { benefitDinner } from "@/content/event";
 
 const MP_API = "https://api.mercadopago.com";
+const MAX_AMOUNT = 10_000_000;
 
 function accessToken(): string {
   const token = process.env.MP_ACCESS_TOKEN;
@@ -18,6 +19,8 @@ function siteUrl(baseUrl?: string): string {
 
 export type PreferenceInput = {
   name: string;
+  email: string;
+  amount: number;
   message?: string;
   reference: string;
   baseUrl?: string;
@@ -33,10 +36,18 @@ export type MpPayment = {
 };
 
 /**
- * Creates a Mercado Pago Checkout Pro preference for a single dinner ticket.
- * The donor name is stored in metadata so the webhook can trust it later.
+ * Creates a Mercado Pago Checkout Pro preference for a contribution to the dinner.
+ * The donor information and chosen amount are stored in metadata so the webhook
+ * can validate the payment before registering the benefactor.
  */
-export async function createPreference({ name, message, reference, baseUrl }: PreferenceInput) {
+export async function createPreference({
+  name,
+  email,
+  amount,
+  message,
+  reference,
+  baseUrl,
+}: PreferenceInput) {
   const base = siteUrl(baseUrl);
   const body = {
     items: [
@@ -45,11 +56,17 @@ export async function createPreference({ name, message, reference, baseUrl }: Pr
         title: benefitDinner.title,
         description: `${benefitDinner.dateLabel} · ${benefitDinner.venue} · ${benefitDinner.city}`,
         quantity: 1,
-        unit_price: benefitDinner.price,
+        unit_price: amount,
         currency_id: benefitDinner.currency,
       },
     ],
-    metadata: { donor_name: name, donor_message: message ?? "" },
+    payer: { email },
+    metadata: {
+      donor_name: name,
+      donor_email: email,
+      donor_message: message ?? "",
+      contribution_amount: amount,
+    },
     external_reference: reference,
     statement_descriptor: "DESAFIA CENA",
     back_urls: {
@@ -128,9 +145,17 @@ export function verifyWebhookSignature(params: {
 }
 
 export function paymentMatchesDinner(payment: MpPayment): boolean {
+  const amount = Math.round(payment.transaction_amount);
+  const metadataAmount = Number(payment.metadata?.contribution_amount);
+  const amountMatchesPreference = Number.isFinite(metadataAmount)
+    ? Math.round(metadataAmount) === amount
+    : amount === benefitDinner.price;
+
   return (
     payment.status === "approved" &&
     payment.currency_id === benefitDinner.currency &&
-    Math.round(payment.transaction_amount) === benefitDinner.price
+    amount >= benefitDinner.minPrice &&
+    amount <= MAX_AMOUNT &&
+    amountMatchesPreference
   );
 }
